@@ -36,11 +36,30 @@ public class SurveyService {
 	}
 
 	public Survey getSurveyById(String id) {
-		
+
 		Predicate<? super Survey> predicate = sur -> sur.getId().equals(id);
-		Optional<Survey> survey=surveys.stream().filter(predicate).findFirst();
-		
-		if(survey.isEmpty()) return null;
+		Optional<Survey> survey = surveys.stream().filter(predicate).findFirst();
+
+		if (survey.isEmpty())
+			return null;
 		return survey.get();
+	}
+
+	public List<Question> getAllQuestionFromSurvey(String id) {
+		Survey survey = getSurveyById(id);
+		if (survey == null)
+			return null;
+		return survey.getQuestions();
+	}
+
+	public Question getAQuestionFromSurveyByQuestionId(String surveyId, String questionId) {
+		List<Question> questions = getAllQuestionFromSurvey(surveyId);
+		Predicate<? super Question> predicate = question -> question.getId().equals(questionId);
+		if(questions ==null) return null;
+		Optional<Question> question = questions.stream().filter(predicate).findFirst();
+
+		if (question.isEmpty())
+			return null;
+		return question.get();
 	}
 }
