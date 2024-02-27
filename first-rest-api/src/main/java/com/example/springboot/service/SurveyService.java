@@ -66,13 +66,15 @@ public class SurveyService {
 		return question.get();
 	}
 
-	public void addNewSurveyQuestion(String surveyId, Question question) {
+	public String addNewSurveyQuestion(String surveyId, Question question) {
 
 		List<Question> questions = getAllQuestionFromSurvey(surveyId);
 
 		question.setId(generateRandomId());
 
 		questions.add(question);
+		
+		return question.getId();
 
 	}
 
@@ -80,5 +82,16 @@ public class SurveyService {
 		SecureRandom secureRandom = new SecureRandom();
 		String randomId = new BigInteger(32, secureRandom).toString();
 		return randomId;
+	}
+
+	public String deleteSurveyQuestion(String surveyId, String questionId) {
+
+		List<Question> questions= getAllQuestionFromSurvey(surveyId);
+		if (questions == null)
+			return null;
+		Predicate<? super Question> predicate = question -> question.getId().equals(questionId);
+		boolean removed=questions.removeIf(predicate);
+		if(!removed) return null;
+		return questionId;
 	}
 }
