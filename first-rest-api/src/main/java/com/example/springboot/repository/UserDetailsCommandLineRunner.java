@@ -21,9 +21,11 @@ public class UserDetailsCommandLineRunner implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		UserDetailsRepository.save(new UserDetails("ranga","Admin"));
 		UserDetailsRepository.save(new UserDetails("ravi","Admin"));
-		UserDetailsRepository.save(new UserDetails("jhon","Admin"));
+		UserDetailsRepository.save(new UserDetails("jhon","User"));
 		
-		List<UserDetails> users= UserDetailsRepository.findAll();
+		//List<UserDetails> users= UserDetailsRepository.findAll();
+		
+		List<UserDetails> users= UserDetailsRepository.findByRole("Admin");
 		
 		users.forEach(user ->logger.info( user.toString()));
 	}
