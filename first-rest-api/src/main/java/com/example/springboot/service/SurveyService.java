@@ -94,4 +94,11 @@ public class SurveyService {
 		if(!removed) return null;
 		return questionId;
 	}
+
+	public void updateSurveyQuestion(String surveyId, String questionId, Question question) {
+		
+		List<Question> questions= getAllQuestionFromSurvey(surveyId);
+		questions.removeIf(q -> q.getId().equals(questionId));
+		questions.add(question);
+	}
 }
