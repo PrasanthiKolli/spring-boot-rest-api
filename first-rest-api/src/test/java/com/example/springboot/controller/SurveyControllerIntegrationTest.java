@@ -1,6 +1,9 @@
 package com.example.springboot.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Base64;
 
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
@@ -51,8 +54,12 @@ class SurveyControllerIntegrationTest {
 				    "correctAnswer": "AWS"
 				}
 				""";
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
 
-		ResponseEntity<String> response = template.getForEntity(SPECIFIC_QUESTION_URL, String.class);
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+
+		ResponseEntity<String> response = template.exchange(SPECIFIC_QUESTION_URL,HttpMethod.GET,httpEntity, String.class);
 
 		assertEquals(expectedResponse.trim(), response.getBody());
 
@@ -78,8 +85,11 @@ class SurveyControllerIntegrationTest {
 						    }
 						]
 				""";
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
 
-		ResponseEntity<String> response = template.getForEntity(GENRIC_QUESTION_URL, String.class);
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+		
+		ResponseEntity<String> response = template.exchange(GENRIC_QUESTION_URL,HttpMethod.GET,httpEntity, String.class);
 
 		JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
 	}
@@ -93,8 +103,11 @@ class SurveyControllerIntegrationTest {
 						    }
 						]
 				""";
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
 
-		ResponseEntity<String> response = template.getForEntity(GENRIC_SURVEY_URL, String.class);
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+		
+		ResponseEntity<String> response = template.exchange(GENRIC_SURVEY_URL,HttpMethod.GET,httpEntity, String.class);
 
 		JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
 	}
@@ -106,8 +119,12 @@ class SurveyControllerIntegrationTest {
 						        "id": "Survey1"
 						    }
 				""";
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
 
-		ResponseEntity<String> response = template.getForEntity(SPECIFIC_SURVEY_URL, String.class);
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+		
+		ResponseEntity<String> response = template.exchange(SPECIFIC_SURVEY_URL,HttpMethod.GET,httpEntity, String.class);
+
 
 		JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
 	}
@@ -126,8 +143,7 @@ class SurveyControllerIntegrationTest {
 				    "correctAnswer": "AWS"
 				}
 					""";
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Type", "application/json");
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
 
 		HttpEntity<String> httpEntity = new HttpEntity<String>(body, headers);
 		ResponseEntity<String> response = template.exchange(GENRIC_QUESTION_URL, HttpMethod.POST, httpEntity,
@@ -136,8 +152,24 @@ class SurveyControllerIntegrationTest {
 		assertTrue(response.getStatusCode().is2xxSuccessful());
 		String locationHeader = response.getHeaders().get("location").get(0);
 		assertTrue(locationHeader.contains(GENRIC_QUESTION_URL));
+		
+		ResponseEntity<String> responseEntityDelete 
+		= template.exchange(locationHeader, HttpMethod.DELETE, httpEntity, String.class);
 
-		template.delete(locationHeader);
+		assertTrue(responseEntityDelete.getStatusCode().is2xxSuccessful());
+		//template.delete(locationHeader);
+	}
+	private HttpHeaders createHttpContentTypeAndAuthorizationHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/json");
+		headers.add("Authorization", "Basic " + performBasicAuthEncoding("admin","password"));
+		return headers;
+	}
+	
+	String performBasicAuthEncoding(String user, String password) {
+		String combined = user + ":" + password;
+		byte[] encodedBytes = Base64.getEncoder().encode(combined.getBytes());
+		return new String(encodedBytes);
 	}
 
 }
