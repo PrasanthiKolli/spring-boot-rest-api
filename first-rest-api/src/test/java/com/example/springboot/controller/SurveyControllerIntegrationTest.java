@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class SurveyControllerTest {
+class SurveyControllerIntegrationTest {
 
 	String str = """
 			{
@@ -61,7 +64,7 @@ class SurveyControllerTest {
 	}
 
 	@Test
-	void getAQuestionFromSurveyByQuestionIdTest() throws JSONException {
+	void getAllQuestionFromSurveyTest() throws JSONException {
 		String expectedResponse = """
 						[
 						    {
@@ -80,7 +83,7 @@ class SurveyControllerTest {
 
 		JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
 	}
-	
+
 	@Test
 	void getAllSurveysTest() throws JSONException {
 		String expectedResponse = """
@@ -95,7 +98,7 @@ class SurveyControllerTest {
 
 		JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
 	}
-	
+
 	@Test
 	void getSurveyByIdTest() throws JSONException {
 		String expectedResponse = """
@@ -109,5 +112,32 @@ class SurveyControllerTest {
 		JSONAssert.assertEquals(expectedResponse, response.getBody(), false);
 	}
 
+	@Test
+	void addNewSurveyQuestion_basicScenario() throws JSONException {
+		String body = """
+					{
+				    "description": "Most Popular Cloud Platform Today",
+				    "options": [
+				        "AWS",
+				        "Azure",
+				        "Google Cloud",
+				        "Oracle Cloud"
+				    ],
+				    "correctAnswer": "AWS"
+				}
+					""";
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/json");
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(body, headers);
+		ResponseEntity<String> response = template.exchange(GENRIC_QUESTION_URL, HttpMethod.POST, httpEntity,
+				String.class);
+
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+		String locationHeader = response.getHeaders().get("location").get(0);
+		assertTrue(locationHeader.contains(GENRIC_QUESTION_URL));
+
+		template.delete(locationHeader);
+	}
 
 }
