@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-public class SampleJob {
+public class BatchConfig {
 	
 	
 	@Autowired
