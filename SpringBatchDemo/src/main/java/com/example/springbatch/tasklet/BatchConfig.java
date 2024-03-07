@@ -20,7 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.example.springbatch.model.Product;
 import com.example.springbatch.processor.ProductProcessor;
 
-@Configuration
+//@Configuration
 public class BatchConfig {
 
 	@Autowired
