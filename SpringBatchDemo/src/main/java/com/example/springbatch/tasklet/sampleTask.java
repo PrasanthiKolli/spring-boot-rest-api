@@ -14,18 +14,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.example.springbatch.service.SecondTasklet;
+
 @Configuration
 public class sampleTask {
 	@Autowired
 	private JobRepository jobRepository;
 	@Autowired
 	private PlatformTransactionManager platformTransactionManager;
-
+	@Autowired
+	private SecondTasklet secondTasklet;
 	@Bean
 	public Job firstJob() {
 
 		return new JobBuilder("firstJob", jobRepository)
 				.start(firstStep())
+				.next(secondStep())
 				.build();
 
 	}
@@ -49,5 +53,11 @@ public class sampleTask {
 
 		};
 	}
+	
+	public Step secondStep() {
 
+		return new StepBuilder("SecondStep", jobRepository)
+				.tasklet(secondTasklet, platformTransactionManager)
+				.build();
+	}
 }
